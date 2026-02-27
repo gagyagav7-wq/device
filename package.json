@@ -1,0 +1,12 @@
+{
+  "name": "poco-control-dash",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev:web": "pnpm --filter web run dev",
+    "start:server": "pnpm --filter server run start",
+    "start:agent": "pnpm --filter agent run start"
+  }
+}
