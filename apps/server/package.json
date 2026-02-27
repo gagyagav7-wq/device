@@ -1,16 +1,19 @@
 {
   "name": "poco-server",
   "version": "1.0.0",
-  "scripts": { "start": "tsx src/index.ts" },
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
   "dependencies": {
-    "fastify": "^4.26.2",
-    "@fastify/websocket": "^8.3.1",
     "@fastify/cors": "^8.5.0",
-    "@poco/shared": "workspace:*"
+    "@fastify/static": "^9.0.0",
+    "@fastify/websocket": "^8.3.1",
+    "@poco/shared": "workspace:*",
+    "fastify": "^4.26.2"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "tsx": "^4.7.1",
-    "typescript": "^5.3.3",
-    "@types/node": "^20.0.0"
+    "typescript": "^5.3.3"
   }
 }

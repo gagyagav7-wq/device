@@ -2,7 +2,5 @@
   "name": "@poco/shared",
   "version": "1.0.0",
   "main": "src/schema.ts",
-  "dependencies": {
-    "zod": "^3.22.4"
-  }
+  "dependencies": { "zod": "^3.22.4" }
 }

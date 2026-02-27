@@ -1,6 +1,8 @@
 import Fastify from 'fastify';
 import fastifyWebsocket from '@fastify/websocket';
 import cors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
 
 const fastify = Fastify({ logger: false });
 const PORT = 8787;
@@ -8,6 +10,12 @@ const TOKEN = process.env.DASH_TOKEN || 'super_secret_poco_token_123';
 
 fastify.register(cors, { origin: '*' });
 fastify.register(fastifyWebsocket);
+
+// Setup biar nampilin folder web Frontend
+fastify.register(fastifyStatic, {
+  root: path.join(__dirname, '../../web/dist'),
+  prefix: '/',
+});
 
 let latestSnapshot: any = null;
 
@@ -28,4 +36,4 @@ fastify.register(async function (fastify) {
   });
 });
 
-fastify.listen({ port: PORT, host: '0.0.0.0' }, () => console.log(`Server jalan di http://0.0.0.0:${PORT}`));
+fastify.listen({ port: PORT, host: '0.0.0.0' }, () => console.log(`[SERVER] Jalan di http://0.0.0.0:${PORT}`));

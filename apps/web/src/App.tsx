@@ -1,86 +1,54 @@
 import { useEffect, useState } from 'react';
-import { MetricCard, KpiRow, Badge } from './components/MetricCard';
 
 export default function App() {
   const [data, setData] = useState<any>(null);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    const wsUrl = `${import.meta.env.VITE_WS_URL}/ws?token=${import.meta.env.VITE_DASH_TOKEN}`;
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws?token=super_secret_poco_token_123`;
+    
     const ws = new WebSocket(wsUrl);
-
     ws.onopen = () => setConnected(true);
     ws.onclose = () => setConnected(false);
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
-      if (msg.type === 'metrics:update') {
-        setData(msg.data);
-      }
+      if (msg.type === 'metrics:update') setData(msg.data);
     };
-
     return () => ws.close();
   }, []);
 
-  if (!data) return <div className="min-h-screen bg-cream flex items-center justify-center font-bold text-xl border-4 border-brutal m-4 rounded-brutal shadow-brutal bg-white">INITIALIZING AGENT...</div>;
-
-  const { battery, cpu, memory, storage, network } = data;
+  if (!data) return <div className="min-h-screen flex items-center justify-center font-bold text-xl text-brutal">MENUNGGU DATA DARI POCO X3...</div>;
 
   return (
-    <div className="min-h-screen bg-cream p-4 md:p-8 font-sans text-brutal selection:bg-pink selection:text-brutal">
-      {/* Top Bar */}
-      <div className="flex justify-between items-center mb-6 bg-white p-3 border-4 border-brutal rounded-brutal shadow-brutal">
-        <h1 className="text-2xl font-black tracking-tighter">POCO CONTROL</h1>
-        <Badge active={connected}>{connected ? 'LIVE' : 'OFFLINE'}</Badge>
+    <div className="p-4 md:p-8 text-brutal">
+      <div className="flex justify-between items-center mb-6 bg-white p-4 border-4 border-brutal rounded-brutal shadow-brutal">
+        <h1 className="text-2xl font-black uppercase tracking-tighter">POCO CONTROL</h1>
+        <span className={`px-3 py-1 text-sm font-bold border-2 border-brutal rounded-full shadow-[2px_2px_0px_#111827] ${connected ? 'bg-mint' : 'bg-pink'}`}>
+          {connected ? 'LIVE' : 'OFFLINE'}
+        </span>
       </div>
 
-      {/* Hero Strip */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div className="flex-1 min-w-[150px] bg-mint p-4 border-4 border-brutal rounded-brutal shadow-brutal flex flex-col justify-center items-center">
-          <span className="text-sm font-bold uppercase mb-1">Battery</span>
-          <span className="text-4xl font-black font-mono">{battery.level}%</span>
-        </div>
-        <div className="flex-1 min-w-[150px] bg-pink p-4 border-4 border-brutal rounded-brutal shadow-brutal flex flex-col justify-center items-center">
-          <span className="text-sm font-bold uppercase mb-1">Status</span>
-          <span className="text-2xl font-black uppercase">{battery.status}</span>
-        </div>
-        <div className="flex-1 min-w-[150px] bg-lavender p-4 border-4 border-brutal rounded-brutal shadow-brutal flex flex-col justify-center items-center">
-          <span className="text-sm font-bold uppercase mb-1">Thermals</span>
-          <span className="text-4xl font-black font-mono">{battery.temp}°C</span>
-        </div>
-      </div>
-
-      {/* Grid Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <MetricCard title="Power Delivery" accent="bg-white">
-          <KpiRow label="Voltage" value={`${battery.voltage} V`} />
-          <KpiRow label="Current" value={`${battery.current} mA`} />
-          <KpiRow label="Est. Wattage" value={`${battery.power} W`} />
-        </MetricCard>
-
-        <MetricCard title="CPU Compute" accent="bg-white">
-          <KpiRow label="Overall Load" value={`${cpu.load}%`} />
-          <div className="mt-4 h-2 w-full bg-brutal/10 rounded-full border-2 border-brutal overflow-hidden">
-            <div className="h-full bg-pink border-r-2 border-brutal transition-all duration-300" style={{ width: `${cpu.load}%` }} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="p-5 border-4 border-brutal rounded-brutal shadow-brutal bg-mint">
+          <h2 className="font-bold text-xl mb-4 border-b-2 border-brutal pb-2">🔋 BATTERY INFO</h2>
+          <div className="space-y-2 font-mono">
+            <div className="flex justify-between"><span>Level</span><span className="font-black text-lg">{data.battery.level}%</span></div>
+            <div className="flex justify-between"><span>Status</span><span className="font-black">{data.battery.status}</span></div>
+            <div className="flex justify-between"><span>Temp</span><span className="font-black">{data.battery.temp}°C</span></div>
+            <div className="flex justify-between"><span>Power</span><span className="font-black">{data.battery.power} W</span></div>
           </div>
-        </MetricCard>
+        </div>
 
-        <MetricCard title="Memory (RAM)" accent="bg-white">
-          <KpiRow label="Total" value={`${(memory.total / 1024).toFixed(1)} GB`} />
-          <KpiRow label="Used" value={`${(memory.used / 1024).toFixed(1)} GB`} />
-          <KpiRow label="Available" value={`${(memory.available / 1024).toFixed(1)} GB`} />
-        </MetricCard>
-
-        <MetricCard title="Internal Storage" accent="bg-white">
-          <KpiRow label="/data Total" value={`${(storage.total / 1024).toFixed(1)} GB`} />
-          <KpiRow label="/data Used" value={`${(storage.used / 1024).toFixed(1)} GB`} />
-          <KpiRow label="/data Free" value={`${(storage.free / 1024).toFixed(1)} GB`} />
-        </MetricCard>
-
-        <MetricCard title="Network Edge" accent="bg-white">
-          <KpiRow label="Local IP" value={network.ip} />
-          <KpiRow label="Download" value={`${network.rxDelta} KB/s`} />
-          <KpiRow label="Upload" value={`${network.txDelta} KB/s`} />
-        </MetricCard>
+        <div className="p-5 border-4 border-brutal rounded-brutal shadow-brutal bg-pink">
+          <h2 className="font-bold text-xl mb-4 border-b-2 border-brutal pb-2">⚙️ SYSTEM COMPUTE</h2>
+          <div className="space-y-2 font-mono">
+            <div className="flex justify-between"><span>CPU Load</span><span className="font-black text-lg">{data.cpu.load.toFixed(1)}%</span></div>
+            <div className="flex justify-between"><span>RAM Total</span><span className="font-black">{data.memory.total.toFixed(1)} MB</span></div>
+            <div className="flex justify-between"><span>RAM Free</span><span className="font-black">{data.memory.free.toFixed(1)} MB</span></div>
+            <div className="flex justify-between"><span>Uptime</span><span className="font-black">{Math.floor(data.uptime / 60)} Mins</span></div>
+          </div>
+        </div>
       </div>
     </div>
   );
